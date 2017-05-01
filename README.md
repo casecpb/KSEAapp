@@ -2,7 +2,7 @@
 
 ### Overview
 
-The KSEAapp R package offers a panel of functions for kinase activity inference on an input phosphoproteomics dataset using the Kinase-Substrate Enrichment Analysis (KSEA) method originally described by Casado *et al.* (see reference below). 
+The KSEAapp R package offers a panel of functions for kinase activity inference on an input phosphoproteomics dataset using the Kinase-Substrate Enrichment Analysis (KSEA) method originally described by Casado *et al.* (see references below). 
 
 For details on its usage and features, please read the Overview.Rmd file within the **vignettes** folder.
 
@@ -34,7 +34,7 @@ install.packages("KSEAapp")
 
 **(2) Via GitHub**
 
-This gives access to the newest development version. Note that you may need to install Rtools in your computer.
+This gives access to the newest development version. 
 ```
 install.packages("devtools") # this installs the devtools R package 
 devtools::install_github("casecpb/KSEAapp")
