@@ -23,7 +23,7 @@ Elements found in 2, 5, 6, and 7 are key components for building the R package b
 -----
 ### Package Installation
 
-There are 2 options for installing the KSEAapp package:
+There are 2 options for installing the KSEAapp package within the R console:
 
 **(1) Via CRAN**
 
