@@ -1,0 +1,188 @@
+---
+title: "KSEAapp Package Overview"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{KSEAapp Package Vignette}
+  %\usepackage[utf8]{inputenc}
+---
+
+## Welcome to the KSEAapp package overview
+
+### This vignette will demonstrate potential usage for the available features within this package.
+
+The fundamental calculations underlying this package is based on work published in Casado et al. (2013) Sci Signal. 6(268):rs6.
+Please refer to this paper for details on the formula.
+
+
+## Summary of the package contents
+
+This package has the following functions:
+
+1.  KSEA.Complete()
+2.  KSEA.KS_table()
+3.  KSEA.Scores()
+4.  KSEA.Barplot()
+5.  KSEA.Heatmap()
+
+This package includes a few sample datasets to use for exercises:
+
+1.  **KSData**: a K-S dataset used for calculations (this file is abbreviated for simplicity and file size). The full file is available in the following GitHub page, github.com/casecpb/KSEA/, as "PSP&NetworKIN_Kinase_Substrate_Dataset_July2016.csv". Please note that this file may be updated with more recent versions in the future. In that case, the appended date will also be updated (e.g., "July2016" will be "July2020"). 
+2.  **PX**: a sample experimental dataset that is correctly formatted for input
+3.  **KSEA.Scores.1**: a sample output from KSEA.Scores() function
+4.  **KSEA.Scores.2**: a sample output from KSEA.Scores() function
+5.  **KSEA.Scores.3**: a sample output from KSEA.Scores() function
+
+*Additional notes on the PX format:*
+
+The following is a detailed description of each column in PX: 
+
+-  **Protein** = the Uniprot Accession ID for the parent protein (if unavailable, write "NULL")
+-  **Gene** = the HUGO gene name for the parent protein
+-  **Peptide** = the peptide sequence (if unavailable, write "NULL")
+-  **Residue.Both** = all phosphosites from that peptide, separated by semicolons if applicable; must be formatted as the single amino acid abbrev. with the residue position (e.g. S102)
+-  **p** = the p-value of that peptide representing differential phosphorylation between the control and treatment group (if none calculated, please write "NULL", cannot be NA)
+-  **FC** = the fold change (not log-transformed); usually the control sample is the denominator
+
+The listed columns must be presented in that exact order. There can be no NA values, or else the entire row will be discarded from analysis. Although Protein, Peptide, and p entries are optional, the column headers are mandatory.
+
+
+## Overview of KSEAapp package functionality
+
+*The goal of the KSEAapp is to generate relative kinase activity inferences from quantitative phosphoproteomics data.*
+
+Given an experimental dataset input, you will generate 3 different forms of outputs:
+
+1.   a summary plot highlighting the results
+2.   a table of all the KSEA kinase scores
+3.   a table of all the kinase-substrate (K-S) relationships used for the calculations
+
+You can achieve this result using 2 different routes:
+
+1.  **Route A: use the KSEA.complete() function to do everything in one go.** This directly saves the 3 separate outputs into your working directory as .tiff (for plot), .csv (for KSEA kinase scores table), and .csv (for K-S relationships table) files.
+
+2.  **Route B: use the KSEA.KS_table(), KSEA.Scores(), and KSEA.Barplot() functions.** This sequence suppresses the file exports and allows everything to be created as objects within the R environment. This gives additional flexibility for the user to do downstream data manipulation. Alternatively, the user can employ KSEA.Heatmap() rather than KSEA.Barplot() if wanting to compile a multi-condition experiment into a single heatmap instead of separate bar plots. 
+
+The following are detailed walk-throughs on how to navigate through each route.
+
+
+## Route A: use the KSEA.complete() function to do everything in one go
+
+KSEA.Complete only compares two groups at a time; therefore, if a dataset contains multiple conditions, the user must submit separate input files, each with a single fold change column, for every pairwise comparison.
+
+This exercise requires the following datasets included in the package: KSData and PX
+
+This is the overview of all the required parameters for KSEA.Complete()
+
+1.  **KSData**: the Kinase-Substrate (K-S) dataset as described above
+2.  **PX**: the experimental data file as described above
+3.  **NetworKIN**: a binary input of TRUE or FALSE, indicating whether or not to include NetworKIN predictions; NetworKIN = TRUE means inclusion of NetworKIN predictions
+4.  **NetworKIN.cutoff**: a numeric value between 1 and infinity setting the minimum NetworKIN score (can be left out if NetworKIN = FALSE)
+5.  **m.cutoff**: a numeric value between 0 and infinity indicating the min. # of substrates a kinase must have to be included in the bar plot output
+6.  **p.cutoff**: a numeric value between 0 and 1 indicating the p-value cutoff for indicating significant kinases in the bar plot
+
+Here is an example type-up for the R Console:
+```r
+KSEA.Complete(KSData, PX, NetworKIN=TRUE, NetworKIN.cutoff=5, m.cutoff=5, p.cutoff=0.01)
+```
+The function will result in 3 different outputs saved directly into the working directory:
+
+-  a .tiff file named "KSEA Bar Plot.tiff", representing the bar plot annotated according to the user-defined parameters
+-  a .csv file named "Kinase-Substrate Links.csv" representing the full table of K-S relationships used in the calculations
+-  a .csv file named "KSEA Kinase Scores.csv" representing the full table of all kinase scored by KSEA
+
+### Description of the output files
+
+**"KSEA Bar Plot.tiff":**
+This is the bar plot that summarizes the KSEA results.
+Note that not all kinases are included. The kinase substrate count cutoff, set by m.cutoff, decides which kinases to include in this plot. 
+The p-value cutoff, set by p.cutoff, decides which kinases to color blue/red for visual annotation of kinases that reach statistical significance.
+Kinases with non-significant scores will be black.
+
+**"Kinase-Substrate Links.csv":**
+This is a complete table listing ALL the K-S relationships identified from the experimental dataset. This includes relationships for kinases that are not featured in the bar plot.
+For each kinase, every substrate identified from the dataset was used for the KSEA calculations (in other words, there was no filtering of the substrates).
+**Kinase.Gene** represents the gene name for each kinase.
+**Substrate.Gene** indicates the gene name for each substrate linked to that kinase.
+**Substrate.Mod** is the substrate's specific amino acid residue that was modified. 
+**Source** shows the database where the K-S annotation was derived from.
+**log2FC** is the log2(fold change) value of that particular substrate phosphosite from the experiment. If that same site was detected across multiple peptides that map to the same protein, the average log2FC is reported.
+
+**"KSEA Kinase Scores.csv":**
+This is a complete table listing ALL the kinases, including those that are not featured in the bar plot, that have at least one identified substrate in the input dataset.
+Please refer to the original Casado et al. publication for detailed description of these columns and what they represent.
+**Kinase.Gene** indicates the gene name for each kinase.
+**mS** represents the mean log2(fold change) of all the kinase's substrates.
+**Enrichment** is the background-adjusted value of the kinase's mS.
+**m** is the total amount of detected substrates from the experimental dataset for each kinase.
+**z.score** is the normalized score for each kinase, weighted by the number of identified substrates.
+**p.value** represents the statistical assessment for the z.score.
+**FDR** is the p-value adjusted for multiple hypothesis testing using the Benjamini & Hochberg method.
+
+-------
+## Route B: use the KSEA.KS_table(), KSEA.Scores(), and KSEA.Barplot() functions
+
+This exercise requires the following datasets included in the package:
+
+*  KSData
+*  PX
+*  KSEA.Scores.1 (only if using KSEA.Heatmap() function)
+*  KSEA.Scores.2 (only if using KSEA.Heatmap() function)
+*  KSEA.Scores.3 (only if using KSEA.Heatmap() function)
+
+### 1) Generate the K-S table using the KSEA.KS_table() function
+
+**The output of this function is identical in format and content as the Kinase-Substrate Links.csv output from KSEA.Complete().**
+
+Here is an example type-up for the R Console:
+```r
+KSData.dataset <- KSEA.KS_table(KSData, PX, NetworKIN=TRUE, NetworKIN.cutoff=5)
+```
+This should result in an R object KSData.dataset, which is identical to the output "Kinase-Substrate Links.csv"" generated in the earlier exercise with KSEA.Complete() 
+
+
+### 2) Generate the KSEA kinase scores using the KSEA.Scores() function
+
+Here is an example type-up for the R Console:
+```r
+Scores <- KSEA.Scores(KSData, PX, NetworKIN=TRUE, NetworKIN.cutoff=5)
+```
+This should result in an R object Scores, which is identical to the output "KSEA Kinase Scores.csv" generated in the earlier exercise with KSEA.Complete() 
+
+### 3) Generate a summary bar plot using the KSEA.Barplot() function
+
+Here is an example type-up for the R Console:
+```r
+KSEA.Barplot(KSData, PX, NetworKIN=TRUE, NetworKIN.cutoff=5, m.cutoff=5, p.cutoff=0.01, export=FALSE)
+```
+This should result in a bar plot, which is identical to the output "KSEA Bar Plot.tiff" generated in the earlier exercise with KSEA.Complete(). Setting export=TRUE would result in the same output "KSEA Bar Plot.tiff" as generated with KSEA.Complete().
+
+### 4) For multi-condition experiments, alternatively generate a summary heatmap using the KSEA.Heatmap() function
+
+Important notes:
+
+-  This function is designed for compiling results of studies that have 2+ treatment/case conditions; otherwise, the KSEA.Barplot() function should be used if there is just a single treatment group and a single control group.
+-  Before using KSEA.Heatmap(), you need to generate the outputs from KSEA.Scores() for each desired pairwise comparison in the study.
+-  The separate objects from KSEA.Scores() will need to be put into a list for input into KSEA.Heatmap().
+
+This is the overview of all the required parameters for KSEA.Heatmap():
+
+1.  **score.list**: the data frame outputs from the KSEA.Scores() function, compiled in a list format
+2.  **sample.labels**: a character vector of all the sample names for heatmap annotation; the names must be in the same order as the data in score.list; please avoid long names, as they may get cropped in the final image
+3.  **stats**: character string of either "p.value" or "FDR" indicating the data column to use for marking statistically significant scores
+4.  **m.cutoff**: a numeric value between 0 and infinity indicating the min. # of substrates a kinase must have to be included in the heatmap
+5.  **p.cutoff**: a numeric value between 0 and 1 indicating the p-value or FDR cutoff for indicating significant kinases in the heatmap
+6.  **sample.cluster**: a binary input of TRUE or FALSE, indicating whether or not to perform hierarchical clustering of the sample columns
+
+Here is an example type-up for the R Console:
+```r
+KSEA.Heatmap(score.list=list(KSEA.Scores.1, KSEA.Scores.2, KSEA.Scores.3), 
+             sample.labels=c("Tumor.A", "Tumor.B", "Tumor.C"), 
+             stats="p.value", m.cutoff=3, p.cutoff=0.05, sample.cluster=TRUE)
+```
+This should result in a .png heatmap saved as "KSEA.Merged.Heatmap.png" within the working directory.
+Blue = negative kinase scores;
+White = zero-valued kinase scores;
+Red = positve kinase scores;
+Asterisks = scores that met the statistical cutoff, as indicated by the p.cutoff parameter.
+
