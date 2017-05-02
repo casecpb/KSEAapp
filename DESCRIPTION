@@ -1,0 +1,19 @@
+Package: KSEAapp
+Version: 0.99.0
+Date: 2017-04-25
+Title: Kinase-Substrate Enrichment Analysis
+Description: Infers relative kinase activity from phosphoproteomics data
+    using the method described by Casado et al. (2013) <doi:10.1126/scisignal.2003573>.
+Author: Danica D. Wiredja 
+Maintainer: Danica D. Wiredja <dwiredja@gmail.com>
+License: MIT + file LICENSE
+Depends: R (>= 2.10)
+Imports: gplots,  
+	 graphics, 
+         stats, 
+         grDevices,
+         utils
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+LazyData: true
+RoxygenNote: 6.0.1
