@@ -6,6 +6,8 @@ The KSEAapp R package offers a panel of functions for kinase activity inference 
 
 For details on its usage and features, please read the Overview.Rmd file within the **vignettes** folder.
 
+Note: if you are interested in performing KSEA through a user-friendly online interface, please visit our [sister site](https://github.com/casecpb/KSEA). 
+
 -----
 ### Page Contents
 
