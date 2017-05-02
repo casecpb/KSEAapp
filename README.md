@@ -27,7 +27,7 @@ There are 2 options for installing the KSEAapp package within the R console:
 
 **(1) Via CRAN**
 
-This gives access to the newest CRAN release version. 
+This gives access to the newest [CRAN release version](https://CRAN.R-project.org/package=KSEAapp). 
 ```
 install.packages("KSEAapp")
 ```
