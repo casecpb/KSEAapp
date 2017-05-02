@@ -1,6 +1,6 @@
 Package: KSEAapp
 Version: 0.99.0
-Date: 2017-04-25
+Date: 2017-05-02
 Title: Kinase-Substrate Enrichment Analysis
 Description: Infers relative kinase activity from phosphoproteomics data
     using the method described by Casado et al. (2013) <doi:10.1126/scisignal.2003573>.
